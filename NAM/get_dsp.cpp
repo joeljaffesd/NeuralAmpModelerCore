@@ -66,58 +66,58 @@ void verify_config_version(const std::string versionStr)
   }
 }
 
-std::vector<float> GetWeights(nlohmann::json const& j, const std::filesystem::path config_path)
-{
-  auto it = j.find("weights");
-  if (it != j.end())
-  {
-    return *it;
-  }
-  else
-    throw std::runtime_error("Corrupted model file is missing weights.");
-}
+// std::vector<float> GetWeights(nlohmann::json const& j, const std::filesystem::path config_path)
+// {
+//   auto it = j.find("weights");
+//   if (it != j.end())
+//   {
+//     return *it;
+//   }
+//   else
+//     throw std::runtime_error("Corrupted model file is missing weights.");
+// }
 
-std::unique_ptr<DSP> get_dsp(const std::filesystem::path config_filename)
-{
-  dspData temp;
-  return get_dsp(config_filename, temp);
-}
+// std::unique_ptr<DSP> get_dsp(const std::filesystem::path config_filename)
+// {
+//   dspData temp;
+//   return get_dsp(config_filename, temp);
+// }
 
-std::unique_ptr<DSP> get_dsp(const std::filesystem::path config_filename, dspData& returnedConfig)
-{
-  if (!std::filesystem::exists(config_filename))
-    throw std::runtime_error("Config JSON doesn't exist!\n");
-  std::ifstream i(config_filename);
-  nlohmann::json j;
-  i >> j;
-  verify_config_version(j["version"]);
+// std::unique_ptr<DSP> get_dsp(const std::filesystem::path config_filename, dspData& returnedConfig)
+// {
+//   if (!std::filesystem::exists(config_filename))
+//     throw std::runtime_error("Config JSON doesn't exist!\n");
+//   std::ifstream i(config_filename);
+//   nlohmann::json j;
+//   i >> j;
+//   verify_config_version(j["version"]);
 
-  auto architecture = j["architecture"];
-  nlohmann::json config = j["config"];
-  std::vector<float> weights = GetWeights(j, config_filename);
+//   auto architecture = j["architecture"];
+//   nlohmann::json config = j["config"];
+//   std::vector<float> weights = GetWeights(j, config_filename);
 
-  // Assign values to returnedConfig
-  returnedConfig.version = j["version"];
-  returnedConfig.architecture = j["architecture"];
-  returnedConfig.config = j["config"];
-  returnedConfig.metadata = j["metadata"];
-  returnedConfig.weights = weights;
-  if (j.find("sample_rate") != j.end())
-    returnedConfig.expected_sample_rate = j["sample_rate"];
-  else
-  {
-    returnedConfig.expected_sample_rate = -1.0;
-  }
+//   // Assign values to returnedConfig
+//   returnedConfig.version = j["version"];
+//   returnedConfig.architecture = j["architecture"];
+//   returnedConfig.config = j["config"];
+//   returnedConfig.metadata = j["metadata"];
+//   returnedConfig.weights = weights;
+//   if (j.find("sample_rate") != j.end())
+//     returnedConfig.expected_sample_rate = j["sample_rate"];
+//   else
+//   {
+//     returnedConfig.expected_sample_rate = -1.0;
+//   }
 
 
-  /*Copy to a new dsp_config object for get_dsp below,
-   since not sure if weights actually get modified as being non-const references on some
-   model constructors inside get_dsp(dsp_config& conf).
-   We need to return unmodified version of dsp_config via returnedConfig.*/
-  dspData conf = returnedConfig;
+//   /*Copy to a new dsp_config object for get_dsp below,
+//    since not sure if weights actually get modified as being non-const references on some
+//    model constructors inside get_dsp(dsp_config& conf).
+//    We need to return unmodified version of dsp_config via returnedConfig.*/
+//   dspData conf = returnedConfig;
 
-  return get_dsp(conf);
-}
+//   return get_dsp(conf);
+// }
 
 std::unique_ptr<DSP> get_dsp(dspData& conf)
 {
